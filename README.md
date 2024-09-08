@@ -1,0 +1,2 @@
+# SampleJava
+STS healthcheck, dockerizing
