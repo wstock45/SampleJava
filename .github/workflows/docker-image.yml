@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Tag Version'
+        # Default value if no value is explicitly provided
+        default: 'World'
+        # Input has to be provided for the workflow to run
+        required: true
+        # The data type of the input
+        type: string
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)

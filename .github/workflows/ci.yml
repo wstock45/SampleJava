@@ -1,0 +1,88 @@
+
+name: CI Pipeline
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      TagVersion:
+        description: 'Tag version for Docker image'
+        required: true
+        default: 'v1.0.0'
+        type: string
+      ChoiceVersion:
+        description: 'Select a Tag Version'
+        required: true
+        type: choice
+        options:
+          - v1.0.0
+          - v1.0.1
+          - v1.0.2
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    env:
+      IMAGE_NAME: ${{ vars.ACR_NAME }}.azurecr.io/${{ vars.PERSONAL_ID }}/healthcheck:${{ github.event.inputs.TagVersion }}
+      IMAGE_NAME_LATEST: ${{ vars.ACR_NAME }}.azurecr.io/${{ vars.PERSONAL_ID }}/healthcheck:latest
+      KUSTOMIZATION_FILE: gitops/kustomization.yaml
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Azure Container Registry
+        run: |
+          echo ${{ secrets.AZURE_CLIENT_SECRET }} | docker login ${{ vars.ACR_NAME }}.azurecr.io -u ${{ vars.AZURE_CLIENT_ID }} --password-stdin
+
+      - name: 현재 디렉토리 확인
+        run: |
+          pwd
+          ls -ltr
+    
+      - name: Build Docker image
+        run: |
+          echo "IMAGE_NAME: "$IMAGE_NAME
+          docker build -t $IMAGE_NAME .
+
+      - name: Tag image as latest
+        run: |
+          docker tag $IMAGE_NAME $IMAGE_NAME_LATEST
+
+      - name: Push Docker image to ACR
+        run: |
+          docker push $IMAGE_NAME
+
+      - name: Push Docker image as latest
+        run: |
+          docker push $IMAGE_NAME_LATEST          
+
+      - name: Update kustomization.yaml with newTag
+        run: |
+          sed -i "s/newTag: .*/newTag: ${{ github.event.inputs.TagVersion }}/" $KUSTOMIZATION_FILE
+
+      - name: Commit and push updated kustomization.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add $KUSTOMIZATION_FILE
+          git commit -m "Update image tag to ${{ github.event.inputs.TagVersion }} in kustomization.yaml"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+
+      - name: Logout from Azure Container Registry
+        run: |
+          docker logout ${{ vars.ACR_NAME }}.azurecr.io

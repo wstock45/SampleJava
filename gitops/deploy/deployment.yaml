@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcheck
+  labels:
+    app: healthcheck
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthcheck
+  template:
+    metadata:
+      labels:
+        app: healthcheck
+      #annotations:
+      #  sidecar.istio.io/inject: "true"
+    spec:
+      #nodeSelector:
+        #node-role.kubernetes.io/infra: "true"
+        #node-role.kubernetes.io/node: "true"
+        #kubernetes.io/hostname: ktis-node04.container.ipc.kt.com
+      containers:
+      - name: healthcheck
+        image: tiuaxcoetmpacr.azurecr.io/82023066/healthcheck:v1.0.0
+        ports:
+        - containerPort: 8080
+        #readinessProbe:
+        #  httpGet:
+        #    path: /
+        #    port: 8181
+        #  #initialDelaySeconds: 5
+        #  periodSeconds: 1
+        #resources:
+        #  limits:
+        #    cpu: '2'
+        #    memory: 1250Mi

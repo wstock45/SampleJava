@@ -1,2 +1,7 @@
-# SampleJava
-STS healthcheck, dockerizing
+# heathcheck
+Sample RestAPI, Git Action CI
+
+
+
+
+

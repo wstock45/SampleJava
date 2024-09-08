@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: healthcheck-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "healthcheck.xxxx.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: healthcheck-svc
+            port:
+              number: 80
+  #tls:
+  #- hosts:
+  #  - '*.ssongman.duckdns.org'
+  #  secretName: wildcard-cert
