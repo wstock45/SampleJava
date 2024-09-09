@@ -81,94 +81,7 @@ $ curl localhost:8080/health -i
 
 
 
-# 3. Docker Buildx
-
-
-
-
-
-## 1) Docker Buildx란?
-
-
-
-**Docker Buildx**는 Docker의 확장 기능으로, 기본 빌드 명령어보다 더 강력한 빌드 기능을 제공합니다. Buildx는 다음과 같은 기능을 포함합니다:
-
-
-
-* **멀티 플랫폼 빌드**: 하나의 Dockerfile로 여러 플랫폼에 맞는 이미지를 동시에 빌드.
-* **외부 빌더(Builder)**: 로컬에서 직접 빌드하지 않고도 외부 클러스터를 통해 빌드 작업을 수행.
-* **캐시 내보내기/가져오기**: 빌드 캐시를 내보내고 가져와 빌드 속도를 높임.
-
-
-
-# 2) [Buildx] 멀티 플랫폼 빌드
-
-docker buildx를 사용하여 멀티 플랫폼 빌드를 지원하는 Docker 이미지를 생성할 수 있다. 
-
-
-
-## (1) **멀티 플랫폼 빌드가 필요한 이유**
-
-오늘날 다양한 하드웨어 아키텍처가 사용되면서, 멀티 플랫폼 지원이 중요해졌다. 특히, 서버에서는 대부분 **x86_64** 기반이지만, 모바일 기기나 일부 개발 환경에서는 **ARM** 기반의 아키텍처도 사용된다. 애플의 M1/M2 칩은 ARM 기반이기 때문에, ARM 아키텍처를 지원하는 Docker 이미지를 빌드할 필요가 있다.
-
-멀티 플랫폼 빌드는 이러한 문제를 해결하고, 애플리케이션이 다양한 플랫폼에서 실행될 수 있도록 한다.
-
-
-
-## (2) 빌더 활성화
-
-```sh
-
-$ docker buildx create --use
-upbeat_matsumoto
-
-
-$ docker buildx  ls
-NAME/NODE               DRIVER/ENDPOINT     STATUS     BUILDKIT   PLATFORMS
-upbeat_matsumoto*       docker-container
- \_ upbeat_matsumoto0    \_ desktop-linux   inactive
-default                 docker
- \_ default              \_ default         running    v0.13.2    linux/arm64, linux/amd64, linux/amd64/v2, linux/riscv64, linux/ppc64le, linux/s390x, linux/386, linux/mips64le, linux/mips64, linux/arm/v7, linux/arm/v6
-desktop-linux           docker
- \_ desktop-linux        \_ desktop-linux   running    v0.13.2    linux/arm64, linux/amd64, linux/amd64/v2, linux/riscv64, linux/ppc64le, linux/s390x, linux/386, linux/mips64le, linux/mips64, linux/arm/v7, linux/arm/v6
- 
-
-```
-
-
-
-## (3) **멀티 플랫폼 빌드 실행**
-
-```sh
-
-docker buildx build --platform linux/amd64,linux/arm64 -t my-spring-app:latest --push .
-
-```
-
-* --platform linux/amd64,linux/arm64: 여러 플랫폼용으로 이미지를 빌드 (멀티아키텍처 지원).
-* -t my-spring-app:latest: 생성된 Docker 이미지에 my-spring-app:latest 태그를 추가
-* --push: 빌드가 완료되면 이미지를 Docker Registry (예: Docker Hub)로 푸시
-  * push 옵션은 필수이다.
-  * 없으면 아래와 같은 에러 발생
-    * No output specified with docker-container driver. Build result will only remain in the build cache. To push result image into registry use --push or to load image into docker use --load
-
-
-
-## (4) 확인
-
-멀티 플랫폼 빌드가 완료되면, docker manifest inspect 명령어로 이미지가 여러 아키텍처로 빌드되었는지 확인할 수 있다
-
-```sh
-
-docker manifest inspect my-spring-app:latest
-
-```
-
-
-
-
-
-# 3) [Buildx] **빌드 캐시 사용**
+# 3. [Buildx] **빌드 캐시 사용**
 
 docker buildx는 빌드 캐시를 내보내고 가져오는 기능을 제공된다. 이 기능을 사용하면 빌드 속도를 크게 높일 수 있다.
 
@@ -177,7 +90,6 @@ docker buildx는 빌드 캐시를 내보내고 가져오는 기능을 제공된�
 ```sh
 
 docker buildx build \
-  --platform linux/amd64,linux/arm64 \
   -t myapp:latest \
   --push \
   --cache-to=type=inline \
@@ -220,11 +132,14 @@ docker buildx build \
 
 ## (3) 실제 사용
 
+#### Build1
+
 ```sh
 docker buildx build \
-    --cache-from=type=registry,ref=myrepo/myimage:cache \
-    --cache-to=type=registry,ref=myrepo/myimage:cache,mode=max \
-    -t myrepo/myimage:latest .
+    --cache-from=type=registry,ref=ssongman/my-spring-app:cache \
+    --cache-to=type=registry,ref=ssongman/my-spring-app:cache,mode=max \
+    --push \
+    -t ssongman/my-spring-app:latest .
     
 ```
 
@@ -233,3 +148,50 @@ docker buildx build \
 * **캐시 저장**: --cache-to=type=registry,ref=myrepo/myimage:cache,mode=max로 빌드 후 최대한의 캐시 정보를 레지스트리에 저장합니다.
 
 * **멀티 플랫폼 빌드**: --platform 플래그를 사용하여 다양한 아키텍처로 이미지를 빌드합니다.
+
+
+
+#### Build2
+
+Docker에서 buildx 명령을 사용하여 이미지를 빌드하고 푸시할 때, 기본적으로 빌드된 이미지는 로컬에 저장되지 않는다. 로컬에 이미지를 생성하려면 --load 또는 --output 옵션을 사용해야 한다.
+
+```sh
+
+# push, load 모두 사용
+docker buildx build \
+    --cache-from=type=registry,ref=ssongman/my-spring-app:cache \
+    --cache-to=type=registry,ref=ssongman/my-spring-app:cache,mode=max \
+    --push \
+    --load \
+    -t ssongman/my-spring-app:v1.1 .
+
+# push 없이 load 만 : registry 에 push 는 안된다.
+docker buildx build \
+    --cache-from=type=registry,ref=ssongman/my-spring-app:cache \
+    --cache-to=type=registry,ref=ssongman/my-spring-app:cache,mode=max \
+    --load \
+    -t ssongman/my-spring-app:v1.2 .
+    
+```
+
+* --load 옵션은 멀티 플랫폼 빌드를 지원하지 않는다. 단일 플랫폼(--platform linux/amd64)에서만 작동한다.
+
+
+
+#### 컨테이너 실행
+
+```sh
+
+
+# Docker 컨테이너 실행
+$ docker run -p 8080:8080 ssongman/my-spring-app
+
+
+# test
+# 다른 터미널에서...
+$ curl localhost:8080/health -i
+
+
+
+```
+
