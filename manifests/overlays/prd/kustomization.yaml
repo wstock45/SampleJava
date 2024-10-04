@@ -6,9 +6,13 @@ resources:
 - ../../base/service.yaml
 - ../../base/ingress.yaml
 
-patchesStrategicMerge:
-- deployment.yaml
-- ingress.yaml
+patches:
+- path: ./deployment-patche.yaml
+  target:
+    kind: Deployment
+- path: ./ingress-patche.yaml
+  target:
+    kind: Ingress
 
 images:
 - name: samplejava
