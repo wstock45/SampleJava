@@ -5,6 +5,9 @@ resources:
 - ../../base
 
 patches:
+- path: ./deployment-patch.yaml
+  target:
+    kind: Deployment
 - path: ./ingress-patch.yaml
   target:
     kind: Ingress
