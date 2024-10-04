@@ -5,10 +5,10 @@ resources:
 - ../../base
 
 patches:
-- path: ./deployment-patche.yaml
+- path: ./deployment-patch.yaml
   target:
     kind: Deployment
-- path: ./ingress-patche.yaml
+- path: ./ingress-patch.yaml
   target:
     kind: Ingress
 
