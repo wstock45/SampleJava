@@ -15,6 +15,6 @@ patches:
     kind: Ingress
 
 images:
-- name: edu/samplejava
+- name: ktdseduacr.azurecr.io/edu/samplejava
   newName: ktdseduacr.azurecr.io/edu/samplejava
   newTag: v1.2
