@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: samplejava-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: samplejava-prd.20.249.203.31.nip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: samplejava
+            port:
+              number: 8080
+        pathType: Prefix
