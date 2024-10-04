@@ -5,8 +5,3 @@ resources:
 - ./deployment.yaml
 - ./service.yaml
 - ./ingress.yaml
-
-images:
-- name: samplejava
-  newName: ktdseduacr.azurecr.io/edu/samplejava
-  newTag: v1.3
