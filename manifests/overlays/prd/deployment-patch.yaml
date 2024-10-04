@@ -4,3 +4,28 @@ metadata:
   name: samplejava
 spec:
   replicas: 3
+  template:
+    spec:
+      containers:
+        - name: samplejava
+          resources:
+            limits:
+              memory: "512Gi"
+              cpu: "250m"
+          readinessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            httpGet:
+                path: /health
+                port: 8080
+                scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          livenessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            httpGet:
+                path: /health
+                port: 8080
+                scheme: HTTP
+            initialDelaySeconds: 20
