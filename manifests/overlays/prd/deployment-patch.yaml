@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: samplejava
 spec:
-  replicas: 3
+  replicas: 0
   template:
     spec:
       containers:
