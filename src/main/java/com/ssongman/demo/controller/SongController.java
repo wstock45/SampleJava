@@ -9,6 +9,7 @@ public class SongController {
 	
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
+    	System.out.println("API Call health");
         return ResponseEntity.ok("Server is running");
     }
 
