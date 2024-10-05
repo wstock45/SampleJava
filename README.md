@@ -35,12 +35,13 @@ Server is running
 FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
 COPY pom.xml .
+RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-
 # Stage 2: Run the application using OpenJDK
-FROM openjdk:17-jdk-slim
+#FROM openjdk:17-jdk-slim
+FROM openjdk:17-jdk
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
@@ -59,11 +60,11 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ```sh
 
 # Docker 빌드 명령
-$ docker build -t my-spring-app .
+$ docker build -t edu00/samplejava:v1.4 .
 
 
 # Docker 컨테이너 실행
-$ docker run -p 8080:8080 my-spring-app
+$ docker run -p 8080:8080 du00/samplejava:v1.4
 
 
 # test
@@ -87,21 +88,29 @@ Docker에서 buildx 명령을 사용하여 이미지를 빌드하고 푸시할 �
 
 ```sh
 
+# push만 사용
+docker buildx build \
+    --cache-from=type=registry,ref=sdu00/samplejava:cache \
+    --cache-to=type=registry,ref=du00/samplejava:cache,mode=max \
+    --push \
+    -t du00/samplejava:v1.4 .
+
+
 # push, load 모두 사용
 docker buildx build \
-    --cache-from=type=registry,ref=ssongman/my-spring-app:cache \
-    --cache-to=type=registry,ref=ssongman/my-spring-app:cache,mode=max \
+    --cache-from=type=registry,ref=edu00/samplejava:cache \
+    --cache-to=type=registry,ref=edu00/samplejava:cache,mode=max \
     --push \
     --load \
-    -t ssongman/my-spring-app:v1.1 .
+    -t edu00/samplejava:v1.1 .
 
 
 # push 없이 load 만 : registry 에 push 는 안된다.
 docker buildx build \
-    --cache-from=type=registry,ref=ssongman/my-spring-app:cache \
-    --cache-to=type=registry,ref=ssongman/my-spring-app:cache,mode=max \
+    --cache-from=type=registry,ref=edu00/samplejava:cache \
+    --cache-to=type=registry,ref=edu00/samplejava:cache,mode=max \
     --load \
-    -t ssongman/my-spring-app:v1.2 .
+    -t edu00/samplejava:v1.3 .
     
 ```
 
@@ -115,7 +124,7 @@ docker buildx build \
 
 
 # Docker 컨테이너 실행
-$ docker run -p 8080:8080 ssongman/my-spring-app
+$ docker run -p 8080:8080 edu00/samplejava
 
 
 # test
