@@ -10,7 +10,7 @@ spec:
         - name: samplejava
           resources:
             limits:
-              memory: "512Gi"
+              memory: "512Mi"
               cpu: "250m"
           readinessProbe:
             failureThreshold: 3
