@@ -25,8 +25,8 @@ on:
 jobs:
   build:
 
-    # runs-on: ubuntu-latest   # Github-hosted
-    runs-on: arc-runner-set  # AKS
+    runs-on: ubuntu-latest   # Github-hosted
+    # runs-on: arc-runner-set  # AKS
     # runs-on: self-hosted     # VM
 
     env:
