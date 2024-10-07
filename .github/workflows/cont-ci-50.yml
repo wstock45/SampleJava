@@ -1,9 +1,5 @@
 name: cont-ci-50
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
 
 on:
   workflow_dispatch:
@@ -16,22 +12,15 @@ on:
         options:
           - DEV
           - PRD
-      #TagVersion:
-      #  description: 'Tag version for Docker image'
-      #  required: true
-      #  default: 'v1.0.0'
-      #  type: string
 
 jobs:
   build:
-
-    # runs-on: ubuntu-latest   # Github-hosted
-    runs-on: edu00-arc-runner-set  # AKS
-    # runs-on: self-hosted     # VM
+    runs-on: ubuntu-latest   # Github-hosted
+    # runs-on: self-hosted           # VM
+    # runs-on: edu00-arc-runner-set  # AKS
 
     env:
       IMAGE_NAME: ${{ vars.ACR_NAME }}.azurecr.io/${{ vars.EDUUSERID }}/samplejava
-      KUSTOMIZATION_FILE: gitops/kustomization.yaml
 
     permissions:
       contents: write
@@ -42,13 +31,13 @@ jobs:
       - name: Set IMAGE_NAME based on environment
         id: set_image_name
         run: |
-          if [[ "${{ github.event.inputs.ENV }}" == "DEV" ]]; then
+          if [[ "${{ github.event.inputs.env }}" == "DEV" ]]; then
             TIMESTAMP=$(date -u +"%Y%m%d%H%M%S" --date="9 hours")
             # TIMESTAMP=$(TZ="Asia/Seoul" date +"%Y%m%d%H%M%S")
             echo "IMAGE_TAG=v$TIMESTAMP" >> $GITHUB_ENV
             echo "KUSTOMIZATION_FILE=manifests/overlays/dev/kustomization.yaml" >> $GITHUB_ENV
           else
-            echo "IMAGE_TAG=v2.${{ github.run_number }}" >> $GITHUB_ENV
+            echo "IMAGE_TAG=v2.1.${{ github.run_number }}" >> $GITHUB_ENV
             echo "KUSTOMIZATION_FILE=manifests/overlays/prd/kustomization.yaml" >> $GITHUB_ENV
           fi
           
