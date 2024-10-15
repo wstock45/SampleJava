@@ -16,7 +16,7 @@ jobs:
         run: |
           TIMESTAMP=$(date -u +"%Y%m%d%H%M%S" --date="9 hours")
           # TIMESTAMP=$(TZ="Asia/Seoul" date +"%Y%m%d%H%M%S")
-          echo "IMAGE_TAG=$TIMESTAMP" >> $GITHUB_ENV
+          echo "IMAGE_TAG=v$TIMESTAMP" >> $GITHUB_ENV
           
       - name: Checkout repository
         uses: actions/checkout@v4
