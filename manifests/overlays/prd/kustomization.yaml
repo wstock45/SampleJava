@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: edu00-prd
+namespace: ccoe-prd
 
 resources:
 - ../../base
@@ -15,6 +15,6 @@ patches:
     kind: Ingress
 
 images:
-- name: ktdseduacr.azurecr.io/edu00/samplejava
-  newName: ktdseduacr.azurecr.io/edu00/samplejava
+- name: ccoetmpacr.azurecr.io/ccoe/samplejava
+  newName: ccoetmpacr.azurecr.io/ccoe/samplejava
   newTag: v1.0.2
