@@ -17,5 +17,5 @@ patches:
 images:
 - name: ccoetmpacr.azurecr.io/ccoe/samplejava
   newName: ccoetmpacr.azurecr.io/ccoe/samplejava
-  newTag: v20241016092900
+  newTag: v20241016110549
 
